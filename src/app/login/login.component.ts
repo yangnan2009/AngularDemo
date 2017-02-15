@@ -15,7 +15,7 @@ import { Component, OnInit, Inject } from '@angular/core';
             minlength="3"
             placeholder="请输入用户名"
             />
-            <div *ngIf="usernameRef.errors?.minlength">should be at least 3 charactors</div>
+            <div *ngIf="usernameRef.errors?.minlength">用户名不能少于3个字符</div>
           <label>用户口令：</label>
           <input type="password"
             name="password"
