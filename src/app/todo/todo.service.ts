@@ -4,7 +4,7 @@ import { UUID } from 'angular2-uuid';
 
 import 'rxjs/add/operator/toPromise';
 
-import { Todo } from './todo.model';
+import { Todo } from '../domain/entities';
 
 @Injectable()
 export class TodoService {
@@ -15,16 +15,48 @@ export class TodoService {
   constructor(private http: Http) { }
   // POST /todos
   addTodo(desc:string): Promise<Todo> {
+    //“+”是一个简易方法可以把string转成number
+    const userId:number = +localStorage.getItem('userId');
     let todo = {
       id: UUID.UUID(),
       desc: desc,
-      completed: false
+      completed: false,
+      userId
     };
     return this.http
       .post(this.api_url, JSON.stringify(todo), {headers: this.headers})
       .toPromise()
       .then(res => res.json() as Todo)
       .catch(this.handleError);
+  }
+  // GET /todos
+  getTodos(): Promise<Todo[]>{
+    const userId = +localStorage.getItem('userId');
+    const url = `${this.api_url}/?userId=${userId}`;
+    return this.http.get(url)
+      .toPromise()
+      .then(res => res.json() as Todo[])
+      .catch(this.handleError);
+  }
+
+  // GET /todos?completed=true/false
+  filterTodos(filter: string): Promise<Todo[]> {
+    const userId:number = +localStorage.getItem('userId');
+    const url = `${this.api_url}/?userId=${userId}`;
+    switch(filter){
+      case 'ACTIVE': return this.http
+        .get(`${url}&completed=false`)
+        .toPromise()
+        .then(res => res.json() as Todo[])
+        .catch(this.handleError);
+      case 'COMPLETED': return this.http
+        .get(`${url}&completed=true`)
+        .toPromise()
+        .then(res => res.json() as Todo[])
+        .catch(this.handleError);
+      default:
+        return this.getTodos();
+    }
   }
   // PUT /todos/:id
   toggleTodo(todo: Todo): Promise<Todo> {
@@ -46,33 +78,8 @@ export class TodoService {
       .then(() => null)
       .catch(this.handleError);
   }
-  // GET /todos
-  getTodos(): Promise<Todo[]>{
-    return this.http.get(this.api_url)
-      .toPromise()
-      .then(res => res.json() as Todo[])
-      .catch(this.handleError);
-  }
   private handleError(error: any): Promise<any> {
     console.error('An error occurred', error);
     return Promise.reject(error.message || error);
-  }
-
-  // GET /todos?completed=true/false
-  filterTodos(filter: string): Promise<Todo[]> {
-    switch(filter){
-      case 'ACTIVE': return this.http
-        .get(`${this.api_url}?completed=false`)
-        .toPromise()
-        .then(res => res.json() as Todo[])
-        .catch(this.handleError);
-      case 'COMPLETED': return this.http
-        .get(`${this.api_url}?completed=true`)
-        .toPromise()
-        .then(res => res.json() as Todo[])
-        .catch(this.handleError);
-      default:
-        return this.getTodos();
-    }
   }
 }
