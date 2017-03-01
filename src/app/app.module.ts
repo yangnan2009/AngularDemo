@@ -2,31 +2,28 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
+import { MdlModule } from 'angular2-mdl';
 
-import { TodoModule } from './todo/todo.module';
 import { CoreModule } from './core/core.module';
+import { AppRoutingModule } from './app-routing.module';
+import { TodoModule } from './todo/todo.module';
+import { LoginModule } from './login/login.module';
 
 import { AppComponent } from './app.component';
-import { LoginComponent } from './login/login.component';
-import { AuthService } from './core/auth.service';
-import { AppRoutingModule } from './app-routing.module';
-
 
 @NgModule({
   declarations: [
-    AppComponent,
-    LoginComponent
+    AppComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
     HttpModule,
     AppRoutingModule,
+    CoreModule,
     TodoModule,
-    CoreModule
-  ],
-  providers: [
-    {provide: 'auth',  useClass: AuthService}
+    MdlModule,
+    LoginModule
   ],
   bootstrap: [AppComponent]
 })

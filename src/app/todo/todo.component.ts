@@ -8,19 +8,26 @@ import { Todo } from '../domain/entities';
   styleUrls: ['./todo.component.css']
 })
 export class TodoComponent implements OnInit {
-  todos : Todo[] = [];
   desc: string = '';
+  todos : Todo[] = [];
 
   constructor(
     @Inject('todoService') private service,
     private route: ActivatedRoute,
-    private router: Router) {}
+    private router: Router) {
+    console.log(router.url);
+  }
   ngOnInit() {
     this.route.params.forEach((params: Params) => {
       let filter = params['filter'];
       this.filterTodos(filter);
     });
   }
+
+  onTextChanges(value) {
+    this.desc = value;
+  }
+
   addTodo(){
     this.service
       .addTodo(this.desc)
@@ -54,6 +61,11 @@ export class TodoComponent implements OnInit {
         return null;
       });
   }
+  filterTodos(filter: string): void{
+    this.service
+      .filterTodos(filter)
+      .then(todos => this.todos = [...todos]);
+  }
   toggleAll(){
     Promise.all(this.todos.map(todo => this.toggleTodo(todo)));
   }
@@ -62,13 +74,5 @@ export class TodoComponent implements OnInit {
     const active_todos = this.todos.filter(todo => todo.completed === false);
     Promise.all(completed_todos.map(todo => this.service.deleteTodoById(todo.id)))
       .then(() => this.todos = [...active_todos]);
-  }
-  onTextChanges(value) {
-    this.desc = value;
-  }
-  filterTodos(filter: string): void{
-    this.service
-      .filterTodos(filter)
-      .then(todos => this.todos = [...todos]);
   }
 }
